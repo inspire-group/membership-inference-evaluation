@@ -94,14 +94,14 @@ class black_box_benchmarks(object):
     
 
     
-    def _mem_inf_benchmarks(self, benchmark_methods=None):
-        if (benchmark_methods is None) or ('correctness' in benchmark_methods):
+    def _mem_inf_benchmarks(self, all_methods=True, benchmark_methods=[]):
+        if (all_methods) or ('correctness' in benchmark_methods):
             self._mem_inf_via_corr()
-        if (benchmark_methods is None) or ('confidence' in benchmark_methods):
+        if (all_methods) or ('confidence' in benchmark_methods):
             self._mem_inf_thre('confidence', self.s_tr_conf, self.s_te_conf, self.t_tr_conf, self.t_te_conf)
-        if (benchmark_methods is None) or ('entropy' in benchmark_methods):
+        if (all_methods) or ('entropy' in benchmark_methods):
             self._mem_inf_thre('entropy', -self.s_tr_entr, -self.s_te_entr, -self.t_tr_entr, -self.t_te_entr)
-        if (benchmark_methods is None) or ('modified entropy' in benchmark_methods):
+        if (all_methods) or ('modified entropy' in benchmark_methods):
             self._mem_inf_thre('modified entropy', -self.s_tr_m_entr, -self.s_te_m_entr, -self.t_tr_m_entr, -self.t_te_m_entr)
 
         return
