@@ -12,4 +12,4 @@ Texas100 Dataset: [natural model](http://www.princeton.edu/~liweis/membership-in
 [model with early stopping](http://www.princeton.edu/~liweis/membership-inference-evaluation/AdvReg/texas_early_stop)  
 
 ### Usage
-`python MIA_evaluate.py --dataset ['purchase' or 'texas'] --model-dir [the path of target classifier]`
+`python MIA_evaluate.py --dataset` [*'purchase' or 'texas'*] `--model-dir` [*the path of target classifier*]
