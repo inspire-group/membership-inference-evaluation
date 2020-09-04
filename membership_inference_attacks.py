@@ -25,41 +25,32 @@ class black_box_benchmarks(object):
         self.t_tr_conf = np.array([self.t_tr_outputs[i, self.t_tr_labels[i]] for i in range(len(self.t_tr_labels))])
         self.t_te_conf = np.array([self.t_te_outputs[i, self.t_te_labels[i]] for i in range(len(self.t_te_labels))])
         
-        self.s_tr_entr = np.array([self._entr_comp(self.s_tr_outputs[i]) for i in range(len(self.s_tr_labels))])
-        self.s_te_entr = np.array([self._entr_comp(self.s_te_outputs[i]) for i in range(len(self.s_te_labels))])
-        self.t_tr_entr = np.array([self._entr_comp(self.t_tr_outputs[i]) for i in range(len(self.t_tr_labels))])
-        self.t_te_entr = np.array([self._entr_comp(self.t_te_outputs[i]) for i in range(len(self.t_te_labels))])
+        self.s_tr_entr = self._entr_comp(self.s_tr_outputs)
+        self.s_te_entr = self._entr_comp(self.s_te_outputs)
+        self.t_tr_entr = self._entr_comp(self.t_tr_outputs)
+        self.t_te_entr = self._entr_comp(self.t_te_outputs)
         
-        self.s_tr_m_entr = np.array([self._m_entr_comp(self.s_tr_outputs[i], self.s_tr_labels[i]) for i in range(len(self.s_tr_labels))])
-        self.s_te_m_entr = np.array([self._m_entr_comp(self.s_te_outputs[i], self.s_te_labels[i]) for i in range(len(self.s_te_labels))])
-        self.t_tr_m_entr = np.array([self._m_entr_comp(self.t_tr_outputs[i], self.t_tr_labels[i]) for i in range(len(self.t_tr_labels))])
-        self.t_te_m_entr = np.array([self._m_entr_comp(self.t_te_outputs[i], self.t_te_labels[i]) for i in range(len(self.t_te_labels))])
+        self.s_tr_m_entr = self._m_entr_comp(self.s_tr_outputs, self.s_tr_labels)
+        self.s_te_m_entr = self._m_entr_comp(self.s_te_outputs, self.s_te_labels)
+        self.t_tr_m_entr = self._m_entr_comp(self.t_tr_outputs, self.t_tr_labels)
+        self.t_te_m_entr = self._m_entr_comp(self.t_te_outputs, self.t_te_labels)
         
-
-        
-
-    def _entr_comp(self, prediction):
-        entr = 0
-        for num in prediction:
-            if num != 0:
-                entr += -1*num*np.log(num)
-        return entr
     
-    def _m_entr_comp(self, prediction, label):
-        entr = 0
-        for i in range(len(prediction)):
-            p = prediction[i]
-            if i==label:
-                if p==0:
-                    entr += -1*1*np.log(1e-30)
-                else:
-                    entr += -1*(1-p)*np.log(p)
-            else:
-                if p==1:
-                    entr += -1*1*np.log(1e-30)
-                else:
-                    entr += -1*p*np.log(1-p)
-        return entr
+    def _log_value(self, probs, small_value=1e-30):
+        return -np.log(np.maximum(probs, small_value))
+    
+    def _entr_comp(self, probs):
+        return np.sum(np.multiply(probs, self._log_value(probs)),axis=1)
+    
+    def _m_entr_comp(self, probs, true_labels):
+        log_probs = self._log_value(probs)
+        reverse_probs = 1-probs
+        log_reverse_probs = self._log_value(reverse_probs)
+        modified_probs = np.copy(probs)
+        modified_probs[range(true_labels.size), true_labels] = reverse_probs[range(true_labels.size), true_labels]
+        modified_log_probs = np.copy(log_reverse_probs)
+        modified_log_probs[range(true_labels.size), true_labels] = log_probs[range(true_labels.size), true_labels]
+        return np.sum(np.multiply(modified_probs, modified_log_probs),axis=1)
     
     def _thre_setting(self, tr_values, te_values):
         value_list = np.concatenate((tr_values, te_values))
